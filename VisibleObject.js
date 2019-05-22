@@ -14,7 +14,7 @@ class VisibleObject {
     if (scale <= 0) return;
 
     const distance = this.position.distance(camera.position);
-    const alpha = Math.min(1, Math.max(0, (meters(100) - distance) / meters(100)))
+    const alpha = Math.min(1, Math.max(0, (meters(200) - distance) / meters(200)))
 
     paint.image({
       width: this.dimensions.width,

@@ -52,7 +52,7 @@ let trees = [...Array(300)].map((_, i) => {
   const sign = i % 2 ? 1 : -1;
   const x = sign * (meters(10) + Math.random() * meters(50));
   const y = 0;
-  const z = i * meters(0.3) + meters(150);
+  const z = i * meters(0.3) + meters(50);
   const position = new V3(x, y, z);
   return new Tree(position)
 })
@@ -88,8 +88,8 @@ function drawRoad() {
   gradient.addColorStop(0.1, "rgb(40, 40, 40)");
   gradient.addColorStop(1, "#000");
 
-  const roadWidth = meters(10);
-  const playerOffset = (player.position.x * 0.2)
+  const roadWidth = meters(12);
+  const playerOffset = player.position.x * 0.4
 
   const leftX = canvas.clientWidth * 0.5 - roadWidth * 0.2 - playerOffset;
   const rightX = canvas.clientWidth * 0.5 + roadWidth * 0.2 - playerOffset;
