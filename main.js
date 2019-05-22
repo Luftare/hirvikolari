@@ -138,7 +138,7 @@ function render() {
       x: 0.5,
       y: 0.5
     },
-    scale: 0.6,
+    scale: canvas.clientWidth / 1000,
     angle: wheelAngle
   })
 }
