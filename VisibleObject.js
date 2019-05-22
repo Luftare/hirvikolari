@@ -36,7 +36,6 @@ class VisibleObject {
     });
   }
 
-
   getProjected(position) {
     const relativePosition = position.clone().subtract(camera.position);
 

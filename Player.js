@@ -1,8 +1,8 @@
 class Player extends VisibleObject {
   constructor(position) {
     super(position);
-    this.velocity = new V3(0, 0, meters(kmhToMs(100)));
-    this.breakAcceleration = meters(5);
+    this.velocity = new V3(0, 0, meters(kmhToMs(150)));
+    this.breakAcceleration = meters(8);
     this.breaking = false;
   }
 
