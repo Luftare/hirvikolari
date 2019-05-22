@@ -10,12 +10,11 @@ class Tree extends VisibleObject {
     this.scale = 6;
   }
 
-  static imageSources = ['images/pine0.png', 'images/pine1.png', 'images/oak0.png']
-
-
   update(dt) {
     if (this.position.z < camera.position.z) {
       this.position.z += meters(100) + Math.random() * meters(300);
     }
   }
 }
+
+Tree.imageSources = ['images/pine0.png', 'images/pine1.png', 'images/oak0.png']
