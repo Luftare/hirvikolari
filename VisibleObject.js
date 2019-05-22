@@ -9,16 +9,16 @@ class VisibleObject {
   }
 
   render() {
-    const projected = this.getProjected(this.position);
+    const projected = VisibleObject.getProjected(this.position);
+
     const scale = this.getScaleAt(this.position);
     if (scale <= 0) return;
 
     const distance = this.position.distance(camera.position);
-    const alpha = Math.min(1, Math.max(0, (meters(200) - distance) / meters(200)))
+    const alpha = Math.min(1, Math.max(0, (meters(gameConfig.fogVisibility) - distance) / meters(gameConfig.fogVisibility)));
+    const weightedAlpha = alpha ** 4;
 
     paint.image({
-      width: this.dimensions.width,
-      height: this.dimensions.height,
       scale: scale * this.scale,
       position: projected,
       anchor: { x: 0.5, y: 1 },
@@ -26,26 +26,25 @@ class VisibleObject {
     });
 
     paint.image({
-      width: this.dimensions.width,
-      height: this.dimensions.height,
       scale: scale * this.scale,
       position: projected,
       anchor: { x: 0.5, y: 1 },
       image: paint.images[this.imageSrc],
-      alpha,
+      alpha: weightedAlpha,
     });
-  }
-
-  getProjected(position) {
-    const relativePosition = position.clone().subtract(camera.position);
-
-    return {
-      x: relativePosition.x * camera.viewDistance / relativePosition.z + canvas.width * 0.5,
-      y: relativePosition.y * camera.viewDistance / relativePosition.z + canvas.height * 0.5,
-    };
   }
 
   getScaleAt(position) {
     return camera.viewDistance / (position.z - camera.position.z);
   }
+}
+
+VisibleObject.getProjected = function (position) {
+  const relativePosition = position.clone().subtract(camera.position);
+  const distance = position.distance(camera.position);
+
+  return {
+    x: relativePosition.x * camera.viewDistance / relativePosition.z + canvas.width * 0.5 + distance * meters(gameConfig.roadCurve * 0.000005),
+    y: relativePosition.y * camera.viewDistance / relativePosition.z + canvas.height * 0.5 - distance * meters(gameConfig.roadSlope * 0.000003),
+  };
 }

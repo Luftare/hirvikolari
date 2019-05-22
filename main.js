@@ -1,31 +1,95 @@
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
+let player;
+let camera;
+let trees = [];
+let mooses = [];
+let renderList = [];
+
+const input = new GameInput(canvas);
+const paint = new Paint(canvas);
+const tintImages = {};
+const meterScale = 300;
+
+const gameConfig = {
+  viewDistance: meters(0.8),
+  fogVisibility: 200,
+  playerVelocityInKmH: 120,
+  breakDeceleration: 8,
+  roadWidth: 10,
+  roadSlope: 0.5,
+  roadCurve: 0.5,
+  mooseCount: 5,
+};
+
+window.addEventListener('keydown', (e) => {
+  if (e.key.toLowerCase() === 'enter') {
+    setupGame();
+    loop.start();
+  }
+})
+
+const imageSources = [
+  ...Tree.imageSources,
+  'images/moose.png',
+  'images/moose-right.png',
+  'images/cockpit.png',
+  'images/wheel.png'
+];
+
 function kmhToMs(num) {
   return num / 3.6;
 }
 
 function meters(num) {
-  return num * 300;
+  return num * meterScale;
 }
-const input = new GameInput(canvas);
-const paint = new Paint(canvas);
-const tintImages = {};
-const imageSources = [
-  ...Tree.imageSources,
-  'images/cockpit.png',
-  'images/wheel.png'
-];
 
-(async () => {
+function asMeters(num) {
+  return num / meterScale;
+}
+
+async function boot() {
+  window.addEventListener('resize', handleResize);
+  handleResize();
+
   await paint.loadImages(imageSources);
 
   imageSources.forEach(src => {
     tintImages[src] = new TintImage(paint.images[src], [40, 40, 40]);
   });
 
+  setupGame();
+
   loop.start();
-})()
+}
+
+function setupGame() {
+  player = new Player(new V3(meters(0), meters(-1.5), meters(0)));
+
+  camera = {
+    position: player.position.clone(),
+    width: canvas.width,
+    height: canvas.height,
+    viewDistance: gameConfig.viewDistance,
+  };
+
+  trees = [...Array(300)].map((_, i) => {
+    const sign = i % 2 ? 1 : -1;
+    const x = sign * (meters(gameConfig.roadWidth * 0.5) + meters(6) + (Math.random() ** 1.5) * meters(50));
+    const y = meters(0.3);
+    const z = i * meters(2) + meters(50);
+    const position = new V3(x, y, z);
+    return new Tree(position)
+  });
+
+  mooses = [...Array(gameConfig.mooseCount)].map((_, i) => {
+    return new Moose(new V3(0, 0, -10000))
+  });
+
+  renderList = [...trees, ...mooses];
+}
 
 
 const loop = new Loop({
@@ -42,36 +106,18 @@ function handleResize() {
   canvas.height = canvas.clientWidth;
 }
 
-handleResize();
-
-window.addEventListener('resize', handleResize);
-
-const player = new Player(new V3(meters(0), meters(-1.2), meters(0)));
-
-let trees = [...Array(300)].map((_, i) => {
-  const sign = i % 2 ? 1 : -1;
-  const x = sign * (meters(10) + Math.random() * meters(100));
-  const y = 0;
-  const z = i * meters(0.3) + meters(50);
-  const position = new V3(x, y, z);
-  return new Tree(position)
-})
-
-let renderList = [...trees];
-
-const camera = {
-  position: player.position.clone(),
-  width: canvas.width,
-  height: canvas.height,
-  viewDistance: meters(0.5),
-};
-
 function update(dt) {
   player.update(dt);
 
   trees.forEach(tree => tree.update(dt))
+  mooses.forEach(moose => moose.update(dt))
   camera.position = player.position.clone();
   input.clearState();
+
+  if (!player.breaking) {
+    gameConfig.roadSlope = (Math.sin(Date.now() * 0.0003) * 0.5 + 0.5) * 0.3
+    gameConfig.roadCurve = Math.sin(Date.now() * 0.0001) * 0.5
+  }
 }
 
 function drawGround() {
@@ -84,29 +130,33 @@ function drawGround() {
 }
 
 function drawRoad() {
-  const gradient = ctx.createLinearGradient(0, canvas.clientHeight / 2, 0, canvas.clientHeight);
+  const horizont = VisibleObject.getProjected(new V3(0, 0, player.position.z + meters(450)))
+  const gradient = ctx.createLinearGradient(0, horizont.y, 0, canvas.clientHeight);
   gradient.addColorStop(0, "rgb(40, 40, 40)");
   gradient.addColorStop(1, "#000");
 
   const roadPoints = [
-    new V3(meters(-5), 0, player.position.z + meters(1)),
-    new V3(meters(5), 0, player.position.z + meters(1)),
-    new V3(0, 0, player.position.z + meters(2000))
+    new V3(meters(-gameConfig.roadWidth * 0.5), 0, player.position.z + meters(0.1)),
+    new V3(meters(-gameConfig.roadWidth * 0.5), 0, player.position.z + meters(10)),
+    new V3(meters(-gameConfig.roadWidth * 0.5), 0, player.position.z + meters(20)),
+    new V3(meters(-gameConfig.roadWidth * 0.5), 0, player.position.z + meters(50)),
+    new V3(meters(-gameConfig.roadWidth * 0.5), 0, player.position.z + meters(150)),
+    new V3(meters(-gameConfig.roadWidth * 0.5), 0, player.position.z + meters(450)),
+    new V3(meters(gameConfig.roadWidth * 0.5), 0, player.position.z + meters(450)),
+    new V3(meters(gameConfig.roadWidth * 0.5), 0, player.position.z + meters(150)),
+    new V3(meters(gameConfig.roadWidth * 0.5), 0, player.position.z + meters(50)),
+    new V3(meters(gameConfig.roadWidth * 0.5), 0, player.position.z + meters(20)),
+    new V3(meters(gameConfig.roadWidth * 0.5), 0, player.position.z + meters(10)),
+    new V3(meters(gameConfig.roadWidth * 0.5), 0, player.position.z + meters(0.1)),
   ];
 
-  const projectedRoadPoints = roadPoints.map(point => {
-    const relativePosition = point.clone().subtract(camera.position);
-
-    return {
-      x: relativePosition.x * camera.viewDistance / relativePosition.z + canvas.width * 0.5,
-      y: relativePosition.y * camera.viewDistance / relativePosition.z + canvas.height * 0.5,
-    };
-  });
+  const projectedRoadPoints = roadPoints.map(VisibleObject.getProjected);
 
   ctx.fillStyle = gradient;
   ctx.moveTo(projectedRoadPoints[0].x, projectedRoadPoints[0].y);
-  ctx.lineTo(projectedRoadPoints[1].x, projectedRoadPoints[1].y);
-  ctx.lineTo(projectedRoadPoints[2].x, projectedRoadPoints[2].y);
+  for (let i = 1; i < projectedRoadPoints.length; i++) {
+    ctx.lineTo(projectedRoadPoints[i].x, projectedRoadPoints[i].y);
+  }
   ctx.closePath();
   ctx.fill();
 }
@@ -123,11 +173,6 @@ function render() {
 
   ctx.drawImage(paint.images['images/cockpit.png'], 0, 0, canvas.width, canvas.height);
 
-  let wheelAngle = 0;
-
-  if (input.keysDown.ArrowRight) wheelAngle = 0.1
-  if (input.keysDown.ArrowLeft) wheelAngle = -0.1
-
   paint.image({
     image: paint.images['images/wheel.png'],
     position: {
@@ -139,6 +184,8 @@ function render() {
       y: 0.5
     },
     scale: canvas.clientWidth / 1000,
-    angle: wheelAngle
+    angle: player.steeringWheelAngle
   })
 }
+
+boot();
