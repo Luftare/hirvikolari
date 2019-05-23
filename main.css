@@ -19,7 +19,6 @@ body {
 }
 
 #game {
-  margin-top: 16px;
   background: rgb(40, 40, 40);
   width: 100%;
   max-width: calc(100vh - 100px);
@@ -29,13 +28,13 @@ body {
   display: inline-block;
   width: 100%;
   max-width: calc(100vh - 100px);
-  padding: 16px 0;
+  padding: 16px;
   box-sizing: border-box;
 }
 
 label {
-  padding-top: 16px;
-  font-size: 24px;
+  padding-top: 14px;
+  font-size: 14px;
   color: #ddd;
 }
 
@@ -65,4 +64,12 @@ button.green {
 
 button:disabled {
   background-color: grey;
+}
+
+.disclaimer {
+  font-size: 10px;
+  margin-top: 42px;
+  margin-left: 16px;
+  margin-bottom: 16px;
+  color: #aaa;
 }

@@ -68,14 +68,6 @@ async function boot() {
   window.addEventListener('resize', handleResize);
   handleResize();
 
-  canvas.addEventListener('touchstart', () => {
-    if (!loop.running || player.velocity.z < 0.5) {
-      setupGame();
-    } else {
-      player.breaking = true;
-    }
-  })
-
   await paint.loadImages(imageSources);
 
   imageSources.forEach(src => {
@@ -128,9 +120,9 @@ function update(dt) {
   camera.position = player.position.clone();
   input.clearState();
 
-  if (!player.breaking) {
-    gameConfig.roadSlope = (Math.sin(Date.now() * 0.0003) * 0.5 + 0.5) * 0.3
-    gameConfig.roadCurve = Math.sin(Date.now() * 0.0001) * 0.5
+  if (!gameConfig.breaking) {
+    gameConfig.roadSlope = (Math.sin(Date.now() * 0.0003) * 0.5 + 0.5)
+    gameConfig.roadCurve = Math.sin(Date.now() * 0.0002) * 1.5
   }
 }
 
@@ -185,12 +177,12 @@ function render() {
   );
   ctx.translate(
     Math.cos(Date.now() * 0.001) * 50 * gameConfig.drunkness,
-    Math.sin(Date.now() * 0.0003) * 50 * gameConfig.drunkness,
+    Math.sin(Date.now() * 0.0003) * 80 * gameConfig.drunkness,
   );
   ctx.translate(-canvas.width * 0.5, -canvas.height * 0.5);
 
-  if (gameConfig.drunkness > 0.2) {
-    ctx.fillStyle = "rgba(70, 70, 70, 0.01)";
+  if (gameConfig.drunkness > 0.05) {
+    ctx.fillStyle = "rgba(50, 50, 50, 0.001)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   } else {
     canvas.width = canvas.width;
@@ -223,15 +215,15 @@ function render() {
   paint.image({
     image: paint.images['images/foot.png'],
     position: {
-      x: canvas.width * (player.breaking ? 0.48 : 0.55),
-      y: canvas.height * (player.breaking ? 0.83 : 0.8),
+      x: canvas.width * (gameConfig.breaking ? 0.48 : 0.55),
+      y: canvas.height * (gameConfig.breaking ? 0.83 : 0.8),
     },
     anchor: {
       x: 0.5,
       y: 0
     },
     scale: canvas.clientWidth / 1200,
-    angle: player.breaking ? -0.1 : 0
+    angle: gameConfig.breaking ? -0.1 : 0
   });
 
   paint.image({
@@ -245,7 +237,7 @@ function render() {
       y: 0.5
     },
     scale: canvas.clientWidth / 1000,
-    angle: player.steeringWheelAngle
+    angle: player.steeringWheelAngle * 0.3
   })
 
   ctx.restore();
