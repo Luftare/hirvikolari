@@ -37,9 +37,11 @@ class Player extends VisibleObject {
       this.steeringWheelAngle += this.steeringWheelAngularSpeed * dt;
     }
 
-    this.steeringWheelAngle = Math.max(-this.maxSteeringWheelAngle, Math.min(this.maxSteeringWheelAngle, this.steeringWheelAngle));
+    this.steeringWheelAngle = gameConfig.roadCurve;
 
-    this.velocity.x += 100 * this.velocity.z * this.steeringWheelAngle * dt;
+    //this.steeringWheelAngle = Math.max(-this.maxSteeringWheelAngle, Math.min(this.maxSteeringWheelAngle, this.steeringWheelAngle));
+
+    //this.velocity.x += 100 * this.velocity.z * this.steeringWheelAngle * dt;
 
     if (this.breaking) {
       this.velocity.z = Math.max(0, this.velocity.z - this.breakAcceleration * dt);
