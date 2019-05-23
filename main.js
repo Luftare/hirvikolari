@@ -97,6 +97,8 @@ function setupGame() {
   });
 
   renderList = [...trees, ...mooses];
+
+  loop.start();
 }
 
 
