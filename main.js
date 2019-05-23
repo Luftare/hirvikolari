@@ -27,7 +27,7 @@ const gameConfig = {
   viewDistance: meters(0.8),
   fogVisibility: 200,
   playerVelocityInKmH: 120,
-  breakDeceleration: 8,
+  breakDeceleration: 6,
   roadWidth: 10,
   roadSlope: 0.5,
   roadCurve: 0.5,

@@ -73,3 +73,7 @@ button:disabled {
   margin-bottom: 16px;
   color: #aaa;
 }
+
+.disclaimer a {
+  color: #aaa;
+}
