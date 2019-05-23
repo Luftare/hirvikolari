@@ -64,6 +64,7 @@ class Player extends VisibleObject {
     });
 
     if (collidingTree || collidingMoose) {
+      this.velocity.set(0, 0, 0);
       loop.stop();
     }
   }
