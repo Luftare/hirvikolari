@@ -54,6 +54,14 @@ async function boot() {
   window.addEventListener('resize', handleResize);
   handleResize();
 
+  canvas.addEventListener('touchstart', () => {
+    if(!loop.running || player.velocity.z < 0.5) {
+      setupGame();
+    } else {
+      player.breaking = true;
+    }
+  })
+
   await paint.loadImages(imageSources);
 
   imageSources.forEach(src => {
