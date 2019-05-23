@@ -12,6 +12,17 @@ const paint = new Paint(canvas);
 const tintImages = {};
 const meterScale = 300;
 
+const loop = new Loop({
+  onTick: (dtInMs) => {
+    const dt = dtInMs / 1000;
+    update(dt);
+    if (Math.random() > gameConfig.drunkness) {
+      render(paint);
+    }
+  },
+  animationFrame: true,
+})
+
 const gameConfig = {
   viewDistance: meters(0.8),
   fogVisibility: 200,
@@ -21,6 +32,7 @@ const gameConfig = {
   roadSlope: 0.5,
   roadCurve: 0.5,
   mooseCount: 5,
+  drunkness: 0.8,
 };
 
 window.addEventListener('keydown', (e) => {
@@ -35,6 +47,7 @@ const imageSources = [
   'images/moose.png',
   'images/moose-right.png',
   'images/cockpit.png',
+  'images/foot.png',
   'images/wheel.png'
 ];
 
@@ -55,7 +68,7 @@ async function boot() {
   handleResize();
 
   canvas.addEventListener('touchstart', () => {
-    if(!loop.running || player.velocity.z < 0.5) {
+    if (!loop.running || player.velocity.z < 0.5) {
       setupGame();
     } else {
       player.breaking = true;
@@ -74,7 +87,7 @@ async function boot() {
 }
 
 function setupGame() {
-  player = new Player(new V3(meters(0), meters(-1.5), meters(0)));
+  player = new Player(new V3(meters(1), meters(-1.5), meters(0)));
 
   camera = {
     position: player.position.clone(),
@@ -100,16 +113,6 @@ function setupGame() {
 
   loop.start();
 }
-
-
-const loop = new Loop({
-  onTick: (dtInMs) => {
-    const dt = dtInMs / 1000;
-    update(dt);
-    render(paint);
-  },
-  animationFrame: true,
-})
 
 function handleResize() {
   canvas.width = canvas.clientWidth;
@@ -172,16 +175,65 @@ function drawRoad() {
 }
 
 function render() {
-  canvas.width = canvas.width;
+  ctx.save();
+  ctx.translate(canvas.width * 0.5, canvas.height * 0.5);
+  ctx.rotate(Math.cos(Date.now() * 0.001) * 0.002 * gameConfig.drunkness)
+  ctx.scale(
+    1 + gameConfig.drunkness * 0.5 + Math.sin(Date.now() * 0.0003) * 0.1,
+    1 + gameConfig.drunkness * 0.5 + Math.sin(Date.now() * 0.0003) * 0.1
+  );
+  ctx.translate(
+    Math.cos(Date.now() * 0.001) * 50 * gameConfig.drunkness,
+    Math.sin(Date.now() * 0.0003) * 50 * gameConfig.drunkness,
+  );
+  ctx.translate(-canvas.width * 0.5, -canvas.height * 0.5);
+
+  if (gameConfig.drunkness > 0) {
+    ctx.fillStyle = "rgba(70, 70, 70, 0.01)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  } else {
+    canvas.width = canvas.width;
+  }
 
   drawGround();
   drawRoad();
+
+  canvas.style.filter = `blur(${(Math.sin(Date.now() * 0.0005) + 0.5) * 4 * gameConfig.drunkness}px)`;
 
   renderList
     .sort((a, b) => b.position.sqDistance(camera.position) - a.position.sqDistance(camera.position))
     .forEach(item => item.render());
 
   ctx.drawImage(paint.images['images/cockpit.png'], 0, 0, canvas.width, canvas.height);
+
+
+
+  paint.image({
+    image: paint.images['images/foot.png'],
+    position: {
+      x: canvas.width * 0.27,
+      y: canvas.height * 0.8
+    },
+    anchor: {
+      x: 0.5,
+      y: 0
+    },
+    scale: canvas.clientWidth / 1200,
+  });
+
+  paint.image({
+    image: paint.images['images/foot.png'],
+    position: {
+      x: canvas.width * (player.breaking ? 0.48 : 0.55),
+      y: canvas.height * (player.breaking ? 0.83 : 0.8),
+    },
+    anchor: {
+      x: 0.5,
+      y: 0
+    },
+    scale: canvas.clientWidth / 1200,
+    angle: player.breaking ? -0.1 : 0
+  });
 
   paint.image({
     image: paint.images['images/wheel.png'],
@@ -196,6 +248,8 @@ function render() {
     scale: canvas.clientWidth / 1000,
     angle: player.steeringWheelAngle
   })
+
+  ctx.restore();
 }
 
 boot();
