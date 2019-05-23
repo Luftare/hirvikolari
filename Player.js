@@ -19,7 +19,7 @@ class Player extends VisibleObject {
       this.breaking = true;
     }
 
-    this.velocity.x = -gameConfig.roadCurve * this.velocity.z * 0.7;
+    //this.velocity.x = -gameConfig.roadCurve * this.velocity.z * 0.7;
 
     if (input.keysDown.e) {
       this.position.y -= meters(50) * dt;
