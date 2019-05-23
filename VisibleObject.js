@@ -10,12 +10,12 @@ class VisibleObject {
 
   render() {
     const projected = VisibleObject.getProjected(this.position);
-
     const scale = this.getScaleAt(this.position);
     if (scale <= 0) return;
 
     const distance = this.position.distance(camera.position);
-    const alpha = Math.min(1, Math.max(0, (meters(gameConfig.fogVisibility) - distance) / meters(gameConfig.fogVisibility)));
+    const fogVisibility = parseFloat(gameConfig.fogVisibility);
+    const alpha = Math.min(1, Math.max(0, (meters(fogVisibility) - distance) / meters(fogVisibility)));
     const weightedAlpha = alpha ** 4;
 
     paint.image({

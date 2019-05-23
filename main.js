@@ -32,7 +32,8 @@ const gameConfig = {
   roadSlope: 0.5,
   roadCurve: 0.5,
   mooseCount: 5,
-  drunkness: 0.8,
+  drunkness: 0,
+  breaking: false
 };
 
 window.addEventListener('keydown', (e) => {
@@ -179,8 +180,8 @@ function render() {
   ctx.translate(canvas.width * 0.5, canvas.height * 0.5);
   ctx.rotate(Math.cos(Date.now() * 0.001) * 0.002 * gameConfig.drunkness)
   ctx.scale(
-    1 + gameConfig.drunkness * 0.5 + Math.sin(Date.now() * 0.0003) * 0.1,
-    1 + gameConfig.drunkness * 0.5 + Math.sin(Date.now() * 0.0003) * 0.1
+    1 + gameConfig.drunkness * 0.5 + (Math.sin(Date.now() * 0.0003) + 0.5) * 0.4 * gameConfig.drunkness,
+    1 + gameConfig.drunkness * 0.5 + (Math.sin(Date.now() * 0.0003) + 0.5) * 0.4 * gameConfig.drunkness
   );
   ctx.translate(
     Math.cos(Date.now() * 0.001) * 50 * gameConfig.drunkness,
@@ -188,7 +189,7 @@ function render() {
   );
   ctx.translate(-canvas.width * 0.5, -canvas.height * 0.5);
 
-  if (gameConfig.drunkness > 0) {
+  if (gameConfig.drunkness > 0.2) {
     ctx.fillStyle = "rgba(70, 70, 70, 0.01)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   } else {
@@ -198,15 +199,13 @@ function render() {
   drawGround();
   drawRoad();
 
-  canvas.style.filter = `blur(${(Math.sin(Date.now() * 0.0005) + 0.5) * 4 * gameConfig.drunkness}px)`;
+  canvas.style.filter = `blur(${(Math.sin(Date.now() * 0.0005) + 0.5) * 6 * gameConfig.drunkness}px)`;
 
   renderList
     .sort((a, b) => b.position.sqDistance(camera.position) - a.position.sqDistance(camera.position))
     .forEach(item => item.render());
 
   ctx.drawImage(paint.images['images/cockpit.png'], 0, 0, canvas.width, canvas.height);
-
-
 
   paint.image({
     image: paint.images['images/foot.png'],

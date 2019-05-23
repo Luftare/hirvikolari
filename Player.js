@@ -1,9 +1,8 @@
 class Player extends VisibleObject {
   constructor(position) {
     super(position);
-    this.velocity = new V3(0, 0, meters(kmhToMs(gameConfig.playerVelocityInKmH)));
-    this.breakAcceleration = meters(gameConfig.breakDeceleration);
-    this.breaking = false;
+    this.velocity = new V3(0, 0, 0);
+    this.breakAcceleration = meters(parseFloat(gameConfig.breakDeceleration));
     this.steeringWheelAngle = 0;
     this.maxSteeringWheelAngle = 0.5;
     this.steeringWheelAngularSpeed = 1;
@@ -16,36 +15,18 @@ class Player extends VisibleObject {
 
   handleInput(dt) {
     if (input.keysDown[' ']) {
-      this.breaking = true;
+      gameConfig.breaking = true;
     }
 
-    //this.velocity.x = -gameConfig.roadCurve * this.velocity.z * 0.7;
 
-    if (input.keysDown.e) {
-      this.position.y -= meters(50) * dt;
-    }
-
-    if (input.keysDown.q) {
-      this.position.y += meters(50) * dt;
-    }
-
-    if (input.keysDown.ArrowLeft) {
-      this.steeringWheelAngle -= this.steeringWheelAngularSpeed * dt;
-    }
-
-    if (input.keysDown.ArrowRight) {
-      this.steeringWheelAngle += this.steeringWheelAngularSpeed * dt;
-    }
 
     this.steeringWheelAngle = gameConfig.roadCurve * 0.5;
 
-    //this.steeringWheelAngle = Math.max(-this.maxSteeringWheelAngle, Math.min(this.maxSteeringWheelAngle, this.steeringWheelAngle));
-
-    //this.velocity.x += 100 * this.velocity.z * this.steeringWheelAngle * dt;
-
-    if (this.breaking) {
+    if (gameConfig.breaking) {
       this.velocity.z = Math.max(0, this.velocity.z - this.breakAcceleration * dt);
-    };
+    } else {
+      this.velocity.z = meters(kmhToMs(parseFloat(gameConfig.playerVelocityInKmH)));
+    }
 
     this.position.scaledAdd(dt, this.velocity);
   }
@@ -65,6 +46,7 @@ class Player extends VisibleObject {
 
     if (collidingTree || collidingMoose) {
       this.velocity.set(0, 0, 0);
+      gameConfig.breaking = true;
       loop.stop();
     }
   }
