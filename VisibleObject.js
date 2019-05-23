@@ -35,7 +35,7 @@ class VisibleObject {
   }
 
   getScaleAt(position) {
-    return camera.viewDistance / (position.z - camera.position.z);
+    return gameConfig.viewDistance / (position.z - camera.position.z);
   }
 }
 
@@ -44,7 +44,7 @@ VisibleObject.getProjected = function (position) {
   const distance = position.distance(camera.position);
 
   return {
-    x: relativePosition.x * camera.viewDistance / relativePosition.z + canvas.width * 0.5 + distance * meters(gameConfig.roadCurve * 0.000008),
-    y: relativePosition.y * camera.viewDistance / relativePosition.z + canvas.height * 0.5 - Math.atan(distance / meters(50)) * meters(gameConfig.roadSlope * 0.2),
+    x: relativePosition.x * gameConfig.viewDistance / relativePosition.z + canvas.width * 0.5 + distance * meters(gameConfig.roadCurve * 0.000008),
+    y: relativePosition.y * gameConfig.viewDistance / relativePosition.z + canvas.height * 0.5 - Math.atan(distance / meters(50)) * meters(gameConfig.roadSlope * 0.2),
   };
 }

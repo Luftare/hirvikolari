@@ -8,7 +8,9 @@ const controlsApp = new Vue({
   },
   methods: {
     handleBreak() {
-      this.breaking = true;
+      setTimeout(() => {
+        this.breaking = true;
+      }, this.drunkness * 1500);
     },
     reset() {
       this.breaking = false;

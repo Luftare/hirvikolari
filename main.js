@@ -6,6 +6,7 @@ let camera;
 let trees = [];
 let mooses = [];
 let renderList = [];
+let filmCutting = false;
 
 const input = new GameInput(canvas);
 const paint = new Paint(canvas);
@@ -16,12 +17,13 @@ const loop = new Loop({
   onTick: (dtInMs) => {
     const dt = dtInMs / 1000;
     update(dt);
-    if (Math.random() > gameConfig.drunkness) {
+
+    if (!filmCutting) {
       render(paint);
     }
   },
   animationFrame: true,
-})
+});
 
 const gameConfig = {
   viewDistance: meters(0.8),
@@ -124,6 +126,21 @@ function update(dt) {
     gameConfig.roadSlope = (Math.sin(Date.now() * 0.0003) * 0.5 + 0.5)
     gameConfig.roadCurve = Math.sin(Date.now() * 0.0002) * 1.5
   }
+
+  gameConfig.viewDistance = meters(0.8) * (1 + Math.cos(Date.now() * 0.001) * 0.2 * gameConfig.drunkness);
+
+
+  if (!filmCutting) {
+    const willCut = Math.random() * 4 < gameConfig.drunkness;
+    const duration = gameConfig.drunkness * Math.random() * 200;
+    if (willCut) {
+      filmCutting = true;
+
+      setTimeout(() => {
+        filmCutting = false;
+      }, duration);
+    }
+  }
 }
 
 function drawGround() {
@@ -170,19 +187,18 @@ function drawRoad() {
 function render() {
   ctx.save();
   ctx.translate(canvas.width * 0.5, canvas.height * 0.5);
-  ctx.rotate(Math.cos(Date.now() * 0.001) * 0.002 * gameConfig.drunkness)
+  ctx.rotate(Math.cos(Date.now() * 0.0003) * 0.5 * gameConfig.drunkness)
   ctx.scale(
-    1 + gameConfig.drunkness * 0.5 + (Math.sin(Date.now() * 0.0003) + 0.5) * 0.4 * gameConfig.drunkness,
-    1 + gameConfig.drunkness * 0.5 + (Math.sin(Date.now() * 0.0003) + 0.5) * 0.4 * gameConfig.drunkness
+    1 + gameConfig.drunkness * 0.5 + (Math.sin(Date.now() * 0.0003) + 1) * gameConfig.drunkness,
+    1 + gameConfig.drunkness * 0.5 + (Math.sin(Date.now() * 0.0004) + 1) * gameConfig.drunkness
   );
   ctx.translate(
     Math.cos(Date.now() * 0.001) * 50 * gameConfig.drunkness,
     Math.sin(Date.now() * 0.0003) * 80 * gameConfig.drunkness,
   );
   ctx.translate(-canvas.width * 0.5, -canvas.height * 0.5);
-
   if (gameConfig.drunkness > 0.05) {
-    ctx.fillStyle = "rgba(50, 50, 50, 0.001)";
+    ctx.fillStyle = 'rgba(50, 50, 50, 0.001)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   } else {
     canvas.width = canvas.width;
