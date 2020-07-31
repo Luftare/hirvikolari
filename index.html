@@ -1,35 +1,44 @@
-<!doctype html>
+<!DOCTYPE html>
 
 <head>
   <title>Hirvi</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, minimal-ui, initial-scale=1">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <link rel="stylesheet" type="text/css" href="main.css">
-  <link rel="stylesheet" type="text/css" href="range.css">
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, minimal-ui, initial-scale=1"
+  />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+  />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="stylesheet" type="text/css" href="main.css" />
+  <link rel="stylesheet" type="text/css" href="range.css" />
 </head>
 
 <body>
-
   <canvas id="game"></canvas>
   <div class="controls">
     <div class="double">
       <button @click.prevent="handleBreak" :disabled="breaking">Jarruta</button>
-      <button @click.prevent="reset" class="green" :disabled="!breaking">Aja</button>
+      <button @click.prevent="reset" class="green" :disabled="!breaking">
+        Aja
+      </button>
     </div>
     <label>Nopeus: {{playerVelocityInKmH}}km/h</label>
-    <input type="range" v-model="playerVelocityInKmH" min="50" max="200">
+    <input type="range" v-model="playerVelocityInKmH" min="50" max="200" />
     <label>Näkyvyys: {{fogVisibility}}m</label>
-    <input type="range" v-model="fogVisibility" min="20" max="600" step="1">
+    <input type="range" v-model="fogVisibility" min="20" max="600" step="1" />
     <label>Promillet: {{promilles}}</label>
-    <input type="range" v-model="drunkness" min="0" max="0.95" step="0.01">
+    <input type="range" v-model="drunkness" min="0" max="0.95" step="0.01" />
   </div>
-  <div class="disclaimer">Demonstraatio ei vastaa todellisuutta ja on ainoastaan viihteellinen. By <a
-      href="https://www.luftare.com">Luftare</a></div>
+  <div class="disclaimer">
+    Demonstraatio ei vastaa todellisuutta ja on ainoastaan viihteellinen. By
+    <a href="https://www.luftare.com">Luftare</a>
+  </div>
 
-  <script src="https://raw.githack.com/Luftare/paint/master/Paint.js"></script>
+  <script src="Paint.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
   <script src="Loop.js"></script>
   <script src="VisibleObject.js"></script>
